@@ -8,9 +8,21 @@ import ScientificCalc from '@/components/ScientificCalc'
 Vue.use(Router)
 
 const routes = [
-  { path: '/', redirect: '/StandardCalc' },
-  { path: '/StandardCalc', component: StandardCalc },
-  { path: '/ScientificCalc', component: ScientificCalc }
+  {
+    path: '/',
+    name: 'RootPath',
+    redirect: '/StandardCalc'
+  },
+  {
+    path: '/StandardCalc',
+    name: 'St',
+    component: StandardCalc
+  },
+  {
+    path: '/ScientificCalc',
+    name: 'Sc',
+    component: ScientificCalc
+  }
 ]
 
 export default new Router({

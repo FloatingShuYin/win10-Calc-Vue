@@ -1,15 +1,12 @@
 <template>
-  <div>
-
-    <img src="../assets/logo.png">
-
+  <div class="">
+    内存中没有任何东西
   </div>
 </template>
 
 <script>
 export default {
-  name: 'WindowFooter'
-
+  name: 'MemoryRecord'
 }
 </script>
 

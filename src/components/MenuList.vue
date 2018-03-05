@@ -1,29 +1,35 @@
 <template>
-  <div class="menuListBox">
-    <span class="menu-pic">
-      <a @click="invertSuperShowMenuValue">
-        <i class="iconfont">&#xe62c;</i>
-      </a>
-    </span>
-    <span class="menu-calc">计算器</span>
-    <ul class="calc-list">
-      <li v-for="calc in calcs" :key="calc.id">
-        {{ calc.name }}
-      </li>
-    </ul>
-    <span class="menu-transverter">转换器</span>
-    <ul class="transverter-list">
-      <li v-for="transverter in transverters" :key="transverter.id">
-        {{ transverter.name }}
-      </li>
-    </ul>
-    <div class="aboutBox">
-      <a href="javascript:void(0)">
-        <span class="about-pic">
+  <div class="menu-out-box" tabindex="1">
+    <div class="menu-list-box">
+      <span class="menu-pic">
+        <a @click="invertSuperShowMenuValue">
           <i class="iconfont">&#xe62c;</i>
-          关于
-        </span>
-      </a>
+        </a>
+      </span>
+      <span class="menu-calc">计算器</span>
+      <ul class="calc-list" @click="superBlur($event)">
+        <router-link to="StandardCalc" tag="li">标准</router-link>
+        <router-link to="ScientificCalc" tag="li">科学</router-link>
+        <li>程序员</li>
+        <li>日期计算</li>
+      </ul>
+      <span class="menu-transverter">转换器</span>
+      <ul class="transverter-list">
+        <li>货币</li>
+        <li>体积</li>
+        <li>长度</li>
+        <li>重量和质量</li>
+        <li>温度</li>
+        <li>能量</li>
+        <li>区域</li>
+        <li>面积</li>
+        <li>速度</li>
+        <li>时间</li>
+        <li>功率</li>
+        <li>数据</li>
+        <li>压强</li>
+        <li id="zh">角度</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -31,115 +37,56 @@
 <script>
 export default {
   name: 'MenuList',
-  data () {
-    return {
-      calcs: [
-        {
-          id: 1,
-          name: '标准'
-        },
-        {
-          id: 2,
-          name: '科学'
-        },
-        {
-          id: 3,
-          name: '程序员'
-        },
-        {
-          id: 4,
-          name: '日期计算'
-        }
-      ],
-      transverters: [
-        {
-          id: 1,
-          name: '货币'
-        },
-        {
-          id: 2,
-          name: '体积'
-        },
-        {
-          id: 3,
-          name: '长度'
-        },
-        {
-          id: 4,
-          name: '重量和质量'
-        },
-        {
-          id: 5,
-          name: '温度'
-        },
-        {
-          id: 6,
-          name: '能量'},
-        {
-          id: 7,
-          name: '区域'
-        },
-        {
-          id: 8,
-          name: '速度'
-        },
-        {
-          id: 9,
-          name: '时间'
-        },
-        {
-          id: 10,
-          name: '功率'
-        },
-        {
-          id: 11,
-          name: '数据'
-        },
-        {
-          id: 12,
-          name: '压力'
-        },
-        {
-          id: 13,
-          name: '角度'
-        }
-      ]
-    }
-  },
   methods: {
     invertSuperShowMenuValue () {
       this.$emit('invert')
+    },
+    superBlur (event) {
+      if (event.target.nodeName.toLowerCase() === 'li') {
+        this.$emit('invert')
+      }
     }
   }
 }
 </script>
 
 <style>
-.menuListBox {
+.menu-out-box {
   position: absolute;
-  top:27px;
-  left:0;
-  bottom:0;
-  overflow: scroll;
-  border: 1px solid blue;
+  background: white;
+  top:26px;
+  bottom: 40px;
+  overflow: hidden;
+  z-index: 1;
 }
-.menuListBox .menu-pic {
+.menu-out-box:focus{
+  outline: none;
+}
+.menu-list-box {
+  overflow: auto;
+  height: 480px;
+  width:250px;
+  margin-right: -17px;
+}
+.menu-list-box .menu-pic {
+  position: absolute;
+  top:5px;
 }
 .menu-calc,
 .menu-transverter {
   font-size: 22px;
-}
-.menu-transverter {
   padding-left: 50px;
 }
-.calc-list li,
-.transverter-list li {
-  list-style-type: none;
-  padding: 15px 50px;
-  padding-right: 0;
-  width:256px;
+.menu-transverter {
 }
-.calc-list li:hover,
-.transverter-list li:hover {
+.menu-list-box li {
+  padding: 10px 60px;
+}
+.menu-list-box li:hover {
+  padding: 10px 60px;
+  background: rgba(43, 48, 59,.7);
+}
+#zh {
+  padding-bottom: 50px;
 }
 </style>

@@ -1,33 +1,25 @@
 <template>
   <div class="menu">
     <span class="menu-pic">
-      <a @click="invertShowMenuValue">
+      <a @click="invertSuperShowMenuValue">
         <i class="iconfont">&#xe62c;</i>
       </a>
       {{ menuTitle }}
     </span>
-    <transition enter-active-class="slideInLeft" leave-active-class="slideOutLeft">
-    <menu-list v-show="showMenu" @invert="invertShowMenuValue" class="animated"></menu-list>
-  </transition>
   </div>
 </template>
 
 <script>
-import menuList from '../components/MenuList'
 export default {
   name: 'WindowMenu',
-  components: {
-    menuList
-  },
   data () {
     return {
-      menuTitle: '标准',
-      showMenu: false
+      menuTitle: '标准'
     }
   },
   methods: {
-    invertShowMenuValue () {
-      this.showMenu = !this.showMenu
+    invertSuperShowMenuValue () {
+      this.$emit('invert')
     }
   }
 }
@@ -35,7 +27,8 @@ export default {
 
 <style>
 .menu {
-  display: table-cell;
+  display: inline-block;
+  margin-top: 3px;
 }
 .menu-pic {
   font-size: 22px;

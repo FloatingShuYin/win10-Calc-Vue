@@ -1,26 +1,40 @@
 <template>
   <div id="app">
     <window-header></window-header>
-    <window-menu></window-menu>
+    <window-menu @invert="showMenu=!showMenu"></window-menu>
+    <transition enter-active-class="slideInLeft" leave-active-class="slideOutLeft">
+      <menu-list
+      id="menu-list"
+      v-show="showMenu"
+      @invert="showMenu=!showMenu"
+      class="animated"
+      v-focus="showMenu"
+      @blur.native="showMenu=false"
+      >
+     </menu-list>
+    </transition>
     <router-view></router-view>
-    <window-footer></window-footer>
   </div>
 </template>
 
 <script>
 import windowHeader from './page/WindowHeader'
-import windowFooter from './page/WindowFooter'
 import windowMenu from './page/WindowMenu'
+import menuList from './components/MenuList'
+
 export default {
   name: 'App',
   components: {
     windowHeader,
     windowMenu,
-    windowFooter
+    menuList
   },
   data () {
     return {
+      showMenu: false
     }
+  },
+  methods: {
   }
 }
 </script>
@@ -33,7 +47,10 @@ body{background: white;overflow: hidden;}
 a:focus {outline:none;}
 
 #app {
+  position: relative;
+  overflow: hidden;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
@@ -47,8 +64,12 @@ a:focus {outline:none;}
   border-right: 0;
   border-radius: 6px;
   box-shadow: 0 2px 8px #000;
-  position: relative;
-  overflow: hidden;
+}
+
+#menu-list{
+  animation-duration: .2s;
+  animation-delay: 0;
+  animation-iteration-count: 1;
 }
 
 </style>
