@@ -1,23 +1,30 @@
 <template>
+  <div>
   <div class="menu">
     <span class="menu-pic">
       <a @click="invertSuperShowMenuValue">
         <i class="iconfont">&#xe62c;</i>
       </a>
-      {{ menuTitle }}
+      {{ DONE_MENT_TITLE }}
     </span>
+  </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'WindowMenu',
   data () {
     return {
-      menuTitle: '标准'
     }
   },
+  computed: {
+    ...mapGetters(['DONE_MENT_TITLE', 'DONE_RESULT_VALUE'])
+  },
   methods: {
+    // ...mapActions('modifyMenuTitle'),
     invertSuperShowMenuValue () {
       this.$emit('invert')
     }

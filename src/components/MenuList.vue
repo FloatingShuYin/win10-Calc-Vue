@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-out-box" tabindex="1">
+  <div class="menu-out-box" tabindex="1" @click="superBlur($event);toggleTitle($event)">
     <div class="menu-list-box">
       <span class="menu-pic">
         <a @click="invertSuperShowMenuValue">
@@ -7,9 +7,9 @@
         </a>
       </span>
       <span class="menu-calc">计算器</span>
-      <ul class="calc-list" @click="superBlur($event)">
-        <router-link to="StandardCalc" tag="li">标准</router-link>
-        <router-link to="ScientificCalc" tag="li">科学</router-link>
+      <ul class="calc-list">
+        <router-link id="StandardCalc" to="StandardCalc" tag="li">标准</router-link>
+        <router-link id="ScientificCalc" to="ScientificCalc" tag="li">科学</router-link>
         <li>程序员</li>
         <li>日期计算</li>
       </ul>
@@ -45,6 +45,9 @@ export default {
       if (event.target.nodeName.toLowerCase() === 'li') {
         this.$emit('invert')
       }
+    },
+    toggleTitle (event) {
+      // event.target.innerText
     }
   }
 }
@@ -67,23 +70,28 @@ export default {
   height: 480px;
   width:250px;
   margin-right: -17px;
+  padding-top: 6px;
 }
 .menu-list-box .menu-pic {
   position: absolute;
-  top:5px;
+  top: 6px;
 }
 .menu-calc,
 .menu-transverter {
   font-size: 22px;
   padding-left: 50px;
 }
+.menu-calc {
+  display: inline-block;
+  margin-top: -3px;
+}
 .menu-transverter {
 }
 .menu-list-box li {
-  padding: 10px 60px;
+  padding: 18px 60px;
 }
 .menu-list-box li:hover {
-  padding: 10px 60px;
+  padding: 18px 60px;
   background: rgba(43, 48, 59,.7);
 }
 #zh {

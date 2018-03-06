@@ -41,9 +41,9 @@ export default {
 
 <style>
 /* 重置 */
-*{margin:0;padding:0;box-sizing:border-box;}
+*{margin:0;padding:0;box-sizing:border-box;background: rgba(230, 230, 230,1);}
 
-body{background: white;overflow: hidden;}
+html,body{background: white;overflow: hidden;}
 a:focus {outline:none;}
 
 #app {
