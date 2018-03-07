@@ -35,9 +35,12 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+
 export default {
   name: 'MenuList',
   methods: {
+    ...mapMutations(['TOGGLE_MENT_TITLE']),
     invertSuperShowMenuValue () {
       this.$emit('invert')
     },
@@ -48,6 +51,7 @@ export default {
     },
     toggleTitle (event) {
       // event.target.innerText
+      this.TOGGLE_MENT_TITLE(event.target.innerText)
     }
   }
 }
