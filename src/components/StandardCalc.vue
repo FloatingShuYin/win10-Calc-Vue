@@ -7,7 +7,7 @@
       <div class="scb-resulted">
         <input type="text"
                name=""
-               :value="DONE_RESULT_STR"
+               :value="resultStr"
                readonly="readonly"
                disabled="disabled"
         />
@@ -15,7 +15,7 @@
       <div class="scb-resultVal">
         <input type="text"
                name=""
-               :value="DONE_RESULT_VALUE"
+               :value="resultVal"
                readonly="readonly"
                disabled="disabled"
         />
@@ -83,22 +83,25 @@ export default {
   },
   data () {
     return {
-      currentTab: 'historyRecord'
+      currentTab: 'historyRecord',
+      pointCount: 0
     }
   },
   filters: {
   },
   computed: {
-    ...mapGetters([
-      'DONE_RESULT_VALUE',
-      'DONE_OLD_VALUE',
-      'DONE_NEW_VALUE',
-      'DONE_PROCESS_STR',
-      'DONE_RESULT_STR',
-      'DONE_ARITHMETIC_SYMBOL',
-      'DONE_ISCHANGE_RESULT_VALUE',
-      ' DONE_ISCANRUN'
-    ])
+    ...mapGetters({
+      resultVal: 'DONE_RESULT_VALUE',
+      oldVal: 'DONE_OLD_VALUE',
+      newVal: 'DONE_NEW_VALUE',
+      processStr: 'DONE_PROCESS_STR',
+      resultHistoryArr: 'DONE_RESULT_HISTORY_ARR',
+      resultStr: 'DONE_RESULT_STR',
+      aSymbol: 'DONE_ARITHMETIC_SYMBOL',
+      canChangeRVal: 'DONE_ISCHANGE_RESULT_VALUE',
+      canChangePStr: 'DONE_ISCHANGE_PROCESS_STR',
+      canRun: 'DONE_ISCANRUN'
+    })
   },
   methods: {
     ...mapMutations([
@@ -106,9 +109,11 @@ export default {
       'TOGGLE_OLD_VALUE',
       'TOGGLE_NEW_VALUE',
       'TOGGLE_PROCESS_STR',
+      'TOGGLE_RESULT_HISTORY_ARR',
       'TOGGLE_ARITHMETIC_SYMBOL',
       'TOGGLE_RESULT_STR',
       'TOGGLE_ISCHANGE_RESULT_VALUE',
+      'TOGGLE_ISCHANGE_PROCESS_STR',
       'TOGGLE_ISCANRUN'
     ]),
     // 感觉可以整合到一个函数，但是如果考虑单一职责原则的话。。。
@@ -130,93 +135,160 @@ export default {
         event.target.classList.add(myclass)
       }
     },
-    run () {
-      // 获取相关值
-      let symbol = this.DONE_ARITHMETIC_SYMBOL
-      let oldValue = this.DONE_OLD_VALUE
-      let newValue = this.DONE_NEW_VALUE
-      // 如果 运算符号 为空
-      if (symbol === '') {
-      } else if (symbol === '+') {
-        console.log('this is symbol === + :' + 'oldValue:' + oldValue + 'newValue:' + newValue)
-        // 更新显示器
-        this.TOGGLE_RESULT_VALUE(
-          parseFloat(oldValue) + parseFloat(newValue)
-        )
-      } else if (symbol === '-') {
-        // 更新显示器
-        this.TOGGLE_RESULT_VALUE(
-          parseFloat(oldValue) - parseFloat(newValue)
-        )
-      } else if (symbol === '×') {
-        // 更新显示器
-        this.TOGGLE_RESULT_VALUE(
-          parseFloat(oldValue) * parseFloat(newValue)
-        )
-      } else if (symbol === '÷') {
-        // 更新显示器
-        this.TOGGLE_RESULT_VALUE(
-          parseFloat(oldValue) / parseFloat(newValue)
-        )
+    // 判断一个数组中的每个元素，在另一个数组中总共出现了多少次（把参数写死了 感觉可以加下判断 自动转换类型）
+    howManyTimesInArr (arr0, arr1) {
+      let count = 0
+      for (let i = 0; i < arr0.length; i++) {
+        for (let j = 0; j < arr1.length; j++) {
+          if (arr0[i] === arr1[j]) {
+            count++
+          }
+        }
       }
+      return count
+    },
+    // howManyTimesInArr(['+','x','-','/'],['1','+','22','-','55','/','2'])
+    run () {
+      let ov = this.oldVal
+      let nv = this.newVal
+      let symbol = this.aSymbol
+      if (nv === '' || ov === '') {
+        console.log('nv | ov 为空')
+      }
+      let tem = 0
+      // 四则运算
+      if (symbol === '+') {
+        tem = parseFloat(ov) + parseFloat(nv)
+        this.TOGGLE_RESULT_VALUE(tem)
+        return tem
+      } else if (symbol === '-') {
+        tem = parseFloat(ov) - parseFloat(nv)
+        this.TOGGLE_RESULT_VALUE(tem)
+        return tem
+      } else if (symbol === '×') {
+        tem = parseFloat(ov) * parseFloat(nv)
+        this.TOGGLE_RESULT_VALUE(tem)
+        return tem
+      } else if (symbol === '÷') {
+        tem = parseFloat(ov) / parseFloat(nv)
+        this.TOGGLE_RESULT_VALUE(tem)
+        return tem
+      }
+      // 运算结果传给newVal
+      // 在 执行器 numActuator 中 newVal 的值会自动赋给 oldVal
+      // 以维持这个循环
+      // this.TOGGLE_NEW_VALUE(this.resultVal)
     },
     // 执行器
     numActuator (ev) {
-      // 数字字符串拼接
-      // 如果已经有小数点的话
-      if (ev === '.' && this.DONE_RESULT_VALUE.indexOf('.') > -1) {
-        console.log('非法小数点已被截获')
-        return false
+      let iscv = this.canChangeRVal
+      let iscp = this.canChangePStr
+      let rv = this.resultVal
+      let nv = this.newVal
+      let pstr = this.processStr
+      // 处理小数点的问题
+      if (ev === '.') {
+        if (nv[nv.length - 1] === '.' ||
+         nv.length < 1 || this.pointCount > 1) {
+          return false
+        }
       }
-      // 拼接还是替代
-      if (this.DONE_ISCHANGE_RESULT_VALUE) {
+      this.pointCount++
+      // 拼接还是替换 (值)
+      if (iscv) {
         // 拼接
-        let resultVal = this.DONE_RESULT_VALUE
-        resultVal += ev
-        // 更新显示器
-        this.TOGGLE_RESULT_VALUE(resultVal)
-        // 更新代算值
-        this.TOGGLE_NEW_VALUE(resultVal)
-        // 获取运算过程
-        let processStr = this.DONE_PROCESS_STR
-        // 拼接运算过程
-        processStr += resultVal
-        // 更新运算过程
-        this.TOGGLE_PROCESS_STR(processStr)
+        rv += ev
+        nv += ev
       } else {
         // 替换
-        // 更新显示器
-        this.TOGGLE_RESULT_VALUE(ev)
-        // 新值
-        this.TOGGLE_NEW_VALUE(ev)
-        // 运算过程
-        this.TOGGLE_PROCESS_STR(ev)
+        rv = ev
+        nv = ev
+        // 允许拼接 (值)
+        this.TOGGLE_ISCHANGE_RESULT_VALUE(true)
       }
-      // 按了数字键后是允许  + - * /触发 run() 函数的
-      // this.TOGGLE_ISCANRUN(true)
+      // 如果newVal有值 则传给oldVal
+      // if (this.newVal !== '') {
+      //   this.TOGGLE_OLD_VALUE(this.newVal)
+      // }
+      // 存入新的值
+      this.TOGGLE_NEW_VALUE(nv)
+      // 更新视图
+      this.TOGGLE_RESULT_VALUE(rv)
+
+      // 拼接还是替换 (过程)
+      if (iscp) {
+        // 拼接
+        pstr += ev
+      } else {
+        pstr = ev
+        // 允许拼接 (过程)
+        this.TOGGLE_ISCHANGE_PROCESS_STR(true)
+      }
+      // 存入
+      this.TOGGLE_PROCESS_STR(pstr)
     },
     symbolActuator (ev) {
-      // 设置运算符
+      let pstr = this.processStr
+      console.log('this is pstr in symbolActuator ' + pstr)
+      // getSymbolArr() => [+ - * /]
+      let symbolArr = this.$options.methods.getSymbolArr()
+      // pstr 中有多少个 + - * / 符号
+      let times = this.howManyTimesInArr(symbolArr, [...pstr])
+      // 处理重复点击问题
+      if (ev === pstr[pstr.length - 1]) {
+        return false
+      }
+      // 处理用户 更正 符号的问题
+      if (symbolArr.some(item => item === pstr[pstr.length - 1])) {
+        console.log(5555555555555555555555)
+        pstr = [...pstr]
+        pstr.pop()
+        pstr.push(ev)
+        pstr = pstr.join('')
+        this.TOGGLE_PROCESS_STR(pstr)
+        this.TOGGLE_ARITHMETIC_SYMBOL(ev)
+        // 更新显示器 （过程）
+        this.TOGGLE_RESULT_STR(pstr)
+        return false
+      }
+      // 拼接 processStr
+      pstr += ev
+      // 存入
+      this.TOGGLE_PROCESS_STR(pstr)
+      // 是否触发 run()
+      // 次数大于1 就触发
+      if (times >= 1) {
+        // 运算结果
+        let num = this.run()
+        // 将运算结果传给 oldVal
+        this.TOGGLE_OLD_VALUE(num)
+        // 按等于号 将会置空新值 避免不必要的覆盖
+      } else if (this.newVal !== '') {
+        // 将新值传旧值 以待新值
+        this.TOGGLE_OLD_VALUE(this.newVal)
+      }
+      // 重置小数点计数器 设置运算符号 改为替换模式(false)
+      this.pointCount = 0
       this.TOGGLE_ARITHMETIC_SYMBOL(ev)
-      // 新值转给旧值 以代新值
-      this.TOGGLE_OLD_VALUE(this.DONE_NEW_VALUE)
-      // 获取运算过程
-      let processStr = this.DONE_PROCESS_STR
-      // 拼接运算过程
-      processStr += ev
-      // 更新运算过程
-      this.TOGGLE_PROCESS_STR(processStr)
-      // 更新过程显示器
-      this.TOGGLE_RESULT_STR(processStr)
-      // 避免重复触发
-      // this.TOGGLE_ISCANRUN(false)
+      this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+      // 更新显示器 （过程）
+      this.TOGGLE_RESULT_STR(pstr)
     },
     functionActuator (ev) {
-      if (ev === 'C') {
-        // 恢复初始状态
-        // this.TOGGLE_RESULT_VALUE('0')
-        // this.TOGGLE_OLD_VALUE('')
-        // this.TOGGLE_NEW_VALUE('')
+      if (ev === '=') {
+        // 调用运算器
+        let num = this.run()
+        // 将运算结果传给 oldVal
+        this.TOGGLE_OLD_VALUE(num)
+        // 并置空新值 以辅助符号处理程序处理
+        this.TOGGLE_NEW_VALUE('')
+        // 进入替换模式
+        this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+        // 提交运算过程至历史记录
+        // 修正运算过程
+        this.TOGGLE_PROCESS_STR(num)
+        this.TOGGLE_RESULT_STR('')
+        // 不允许符号键触发 run()
       } else if (ev === 'CE') {
         // 清除当前行
         // this.TOGGLE_RESULT_VALUE('0')
@@ -237,11 +309,17 @@ export default {
 
       } else if (ev === '±') {
 
-      } else if (ev === '=') {
-        // 将 isChangeRValue 设置为 false 以表示 resultValue可以被"替代"
-        // this.TOGGLE_ISCHANGE_RESULT_VALUE(true)
-        // 调用运算器
-        this.run()
+      } else if (ev === 'C') {
+        // 恢复初始状态
+        this.TOGGLE_RESULT_VALUE('0')
+        this.TOGGLE_OLD_VALUE('')
+        this.TOGGLE_NEW_VALUE('')
+        this.TOGGLE_PROCESS_STR('')
+        this.TOGGLE_RESULT_STR('')
+        this.TOGGLE_ARITHMETIC_SYMBOL('+')
+        this.TOGGLE_ISCHANGE_PROCESS_STR(false)
+        this.TOGGLE_ISCANRUN(false)
+        this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
       }
     },
     // 事件监听分发中心
@@ -299,6 +377,8 @@ export default {
     const symbolArr = numbtlsValueArr.filter(item => {
       return item === '+' || item === '-' || item === '×' || item === '÷'
     })
+    // 暴露出去
+    this.$options.methods.getSymbolArr = () => symbolArr
     // 功能按钮
     // 三数组去重 感觉还可以改下 不写这么死
     let functionTemp = ((ar0, ar1, ar2) => {

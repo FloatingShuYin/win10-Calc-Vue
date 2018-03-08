@@ -16,12 +16,14 @@ const state = {
   processStr: '',
   // 返回到显示器的值 （过程）
   resultStr: '',
-  // 完整的运算过程
-  resultProcessArr: [],
+  // 历史记录
+  resultHistoryArr: [],
   // 运算符号
   symbol: '+',
-  // resultValue值能否替代
+  // resultValue值 能否被拼接
   isChangeRValue: false,
+  // processStr 能否被拼接
+  isChangePStr: false,
   // 表示+ - * /能否触发run()运算
   isCanRun: false
 }
@@ -33,10 +35,11 @@ const getters = {
   [types.DONE_NEW_VALUE]: state => state.newValue,
   [types.DONE_PROCESS_STR]: state => state.processStr,
   [types.DONE_RESULT_STR]: state => state.resultStr,
-  [types.DONE_RESULT_PROCESS_ARR]: state => state.resultProcessArr,
+  [types.DONE_RESULT_HISTORY_ARR]: state => state.resultHistoryArr,
   [types.DONE_TEMP_VALUE]: state => state.tempValue,
   [types.DONE_ARITHMETIC_SYMBOL]: state => state.symbol,
   [types.DONE_ISCHANGE_RESULT_VALUE]: state => state.isChangeRValue,
+  [types.DONE_ISCHANGE_PROCESS_STR]: state => state.isChangePStr,
   [types.DONE_ISCANRUN]: state => state.isCanRun
 }
 
@@ -59,8 +62,8 @@ const mutations = {
   [types.TOGGLE_RESULT_STR]: (state, newResultStr) => {
     state.resultStr = newResultStr
   },
-  [types.TOGGLE_RESULT_PROCESS_ARR]: (state, newResultProcessArr) => {
-    state.resultProcessArr.push(newResultProcessArr)
+  [types.TOGGLE_RESULT_HISTORY_ARR]: (state, newResultHistoryArr) => {
+    state.resultHistoryArr.push(newResultHistoryArr)
   },
   [types.TOGGLE_TEMP_VALUE]: (state, newTempValue) => {
     state.tempValue = newTempValue
@@ -70,6 +73,9 @@ const mutations = {
   },
   [types.TOGGLE_ISCHANGE_RESULT_VALUE]: (state, newV) => {
     state.isChangeRValue = newV
+  },
+  [types.TOGGLE_ISCHANGE_PROCESS_STR]: (state, newV) => {
+    state.isChangePStr = newV
   },
   [types.TOGGLE_ISCANRUN]: (state, newV) => {
     state.isCanRun = newV
