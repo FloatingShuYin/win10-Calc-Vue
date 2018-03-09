@@ -7,7 +7,7 @@
       <div class="scb-resulted">
         <input type="text"
                name=""
-               :value="resultStr"
+               :value="resultStr | wateriInjectionStr(['×', '÷', '+', '-'])"
                readonly="readonly"
                disabled="disabled"
         />
@@ -58,32 +58,23 @@
     </main><!-- e:scb-left-->
     <!-- s:scb-right-->
     <div class="scb-right">
-        <!-- s:内存 历史记录 tabs -->
-        <ul class="scb-right-hmtabs" @click="toggleTab($event,'historyRecord','memoryRecord');modifyActiveClass($event,'historyRecord','memoryRecord','active')">
-            <li id="historyRecord" class="active">历史记录</li>
-            <li id="memoryRecord">内存记录</li>
-          <li class="move"> </li>
-        </ul><!-- e:内存 历史记录 tabs -->
-        <memory-record :is="currentTab" keep-alive></memory-record>
+      <history-memory></history-memory>
     </div><!-- e:scb-right-->
 
   </div>
 </template>
 
 <script>
-import memoryRecord from './MemoryRecord'
-import historyRecord from './HistoryRecord'
+import historyMemory from './HistoryMemory'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'StandardCalc',
   components: {
-    historyRecord,
-    memoryRecord
+    historyMemory
   },
   data () {
     return {
-      currentTab: 'historyRecord',
       pointCount: 0
     }
   },
@@ -116,24 +107,9 @@ export default {
       'TOGGLE_ISCHANGE_PROCESS_STR',
       'TOGGLE_ISCANRUN'
     ]),
-    // 感觉可以整合到一个函数，但是如果考虑单一职责原则的话。。。
-    // 切换标签页
-    toggleTab (event, tab0, tab1) {
-      if (event.target.id === tab0) {
-        this.currentTab = tab0
-      } else if (event.target.id === tab1) {
-        this.currentTab = tab1
-      }
-    },
-    // 切换标签页导航栏 active Class
-    modifyActiveClass (event, tab0, tab1, myclass) {
-      if (event.target.id === tab0) {
-        document.getElementById(tab1).classList.remove(myclass)
-        event.target.classList.add(myclass)
-      } else if (event.target.id === tab1) {
-        document.getElementById(tab0).classList.remove(myclass)
-        event.target.classList.add(myclass)
-      }
+    // 方便返回自定义的getSymbolArr()函数
+    getSymbolArr () {
+      return this.$options.methods.getSymbolArr()
     },
     // 判断一个数组中的每个元素，在另一个数组中总共出现了多少次（把参数写死了 感觉可以加下判断 自动转换类型）
     howManyTimesInArr (arr0, arr1) {
@@ -174,10 +150,6 @@ export default {
         this.TOGGLE_RESULT_VALUE(tem)
         return tem
       }
-      // 运算结果传给newVal
-      // 在 执行器 numActuator 中 newVal 的值会自动赋给 oldVal
-      // 以维持这个循环
-      // this.TOGGLE_NEW_VALUE(this.resultVal)
     },
     // 执行器
     numActuator (ev) {
@@ -206,10 +178,6 @@ export default {
         // 允许拼接 (值)
         this.TOGGLE_ISCHANGE_RESULT_VALUE(true)
       }
-      // 如果newVal有值 则传给oldVal
-      // if (this.newVal !== '') {
-      //   this.TOGGLE_OLD_VALUE(this.newVal)
-      // }
       // 存入新的值
       this.TOGGLE_NEW_VALUE(nv)
       // 更新视图
@@ -231,16 +199,23 @@ export default {
       let pstr = this.processStr
       console.log('this is pstr in symbolActuator ' + pstr)
       // getSymbolArr() => [+ - * /]
-      let symbolArr = this.$options.methods.getSymbolArr()
+      let symbolArr = this.getSymbolArr()
+      console.log('this is symbolArr in symbolActuator ' + symbolArr)
       // pstr 中有多少个 + - * / 符号
       let times = this.howManyTimesInArr(symbolArr, [...pstr])
+      // 处理用户不按数字就按操作符号的问题。。。
+      if (pstr.length === 0) {
+        return false
+      }
       // 处理重复点击问题
       if (ev === pstr[pstr.length - 1]) {
         return false
       }
+      console.log(pstr[pstr.length - 1])
+      console.log('最后一个的字符是符号吗？: ' + symbolArr.some(item => item === pstr[pstr.length - 1]))
       // 处理用户 更正 符号的问题
       if (symbolArr.some(item => item === pstr[pstr.length - 1])) {
-        console.log(5555555555555555555555)
+        console.log('符号已经更正')
         pstr = [...pstr]
         pstr.pop()
         pstr.push(ev)
@@ -276,6 +251,7 @@ export default {
     },
     functionActuator (ev) {
       if (ev === '=') {
+        let pstr = this.processStr
         // 调用运算器
         let num = this.run()
         // 将运算结果传给 oldVal
@@ -285,6 +261,12 @@ export default {
         // 进入替换模式
         this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
         // 提交运算过程至历史记录
+        console.log('this is pstr in functionActuator before: ' + pstr)
+        pstr += ev
+        console.log('this is pstr in functionActuator after: ' + pstr)
+        console.log('this is num in functionActuator: ' + num)
+        this.TOGGLE_RESULT_HISTORY_ARR([pstr, num])
+        console.log('this is RESULT_HISTORY_ARR in functionActuator:  ' + this.resultHistoryArr)
         // 修正运算过程
         this.TOGGLE_PROCESS_STR(num)
         this.TOGGLE_RESULT_STR('')
@@ -377,7 +359,7 @@ export default {
     const symbolArr = numbtlsValueArr.filter(item => {
       return item === '+' || item === '-' || item === '×' || item === '÷'
     })
-    // 暴露出去
+    // 暴露出去 给其他小伙伴使用
     this.$options.methods.getSymbolArr = () => symbolArr
     // 功能按钮
     // 三数组去重 感觉还可以改下 不写这么死
@@ -434,6 +416,9 @@ export default {
 </script>
 
 <style>
+input {
+  color: #333;
+}
 /*弹性盒子布局*/
 .scb {
   display: flex;
@@ -469,41 +454,6 @@ export default {
 .scb-resultVal input {
   padding-right: 16px;
   font-size: 50px;
-  color: rgba(0,0,0,1);
-}
-/*标签导航样式*/
-.scb-right-hmtabs li {
-  font-size: 15px;
-  font-weight: bold;
-  display: inline;
-  list-style-type: none;
-  padding: 0 8px;
-  text-align: center;
-}
-/*辅助移动的下划线定位*/
-.scb-right-hmtabs {
-  position: relative;
-}
-/*活动样式*/
-.active {
-  color:red;
-}
-/*下划线移动*/
-.move{
-  height: 4px;
-  width: 66px;
-  position: absolute;
-  top: 20px;
-  left: 5px;
-  transition: left .2s ease-in-out 0s;
-}
-li:nth-child(1):hover~ .move{
-    left: 5px;
-    border-top: 4px solid green;
-}
-li:nth-child(2):hover~ .move{
-    left: 85px;
-    border-top: 4px solid green;
 }
 /*内存操作按钮*/
 .scb-memorybtls {
