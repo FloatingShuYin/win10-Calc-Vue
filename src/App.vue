@@ -41,11 +41,18 @@ export default {
 
 <style>
 /* 重置 */
-*{margin:0;padding:0;box-sizing:border-box;background: rgba(230, 230, 230,1);}
-
-html,body{background: white;overflow: hidden;}
-a:focus {outline:none;}
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: rgba(230, 230, 230,1);
+}
+html,body{
+  background: white;overflow: hidden;
+}
+a:focus {
+  outline:none;
+}
 #app {
   position: relative;
   overflow: hidden;
@@ -65,11 +72,9 @@ a:focus {outline:none;}
   border-radius: 6px;
   box-shadow: 0 2px 8px #000;
 }
-
 #menu-list{
   animation-duration: .2s;
   animation-delay: 0;
   animation-iteration-count: 1;
 }
-
 </style>

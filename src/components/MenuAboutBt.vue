@@ -1,4 +1,3 @@
-
 <template>
   <div class="about-box">
     <a>
@@ -13,10 +12,8 @@
 <script>
 export default {
   name: 'MenuAboutBt'
-
 }
 </script>
 
 <style>
-
 </style>

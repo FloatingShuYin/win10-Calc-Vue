@@ -66,7 +66,7 @@ export default {
   overflow: hidden;
   z-index: 1;
 }
-.menu-out-box:focus{
+.menu-out-box:focus {
   outline: none;
 }
 .menu-list-box {
