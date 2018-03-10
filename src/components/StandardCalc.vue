@@ -246,12 +246,21 @@ export default {
       this.pointCount = 0
       this.TOGGLE_ARITHMETIC_SYMBOL(ev)
       this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+      // 允许拼接 (过程)
+      this.TOGGLE_ISCHANGE_PROCESS_STR(true)
       // 更新显示器 （过程）
       this.TOGGLE_RESULT_STR(pstr)
     },
     functionActuator (ev) {
       if (ev === '=') {
         let pstr = this.processStr
+        // 如果最后一位是 + - * / 符号 则与他自己(oldValue)运算
+        if (this.getSymbolArr().some(item => item === pstr[pstr.length - 1])) {
+          this.TOGGLE_NEW_VALUE(this.resultVal)
+          this.TOGGLE_OLD_VALUE(this.resultVal)
+          pstr += this.resultVal
+          this.TOGGLE_PROCESS_STR(pstr)
+        }
         // 调用运算器
         let num = this.run()
         // 将运算结果传给 oldVal
@@ -260,6 +269,7 @@ export default {
         this.TOGGLE_NEW_VALUE('')
         // 进入替换模式
         this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+        this.TOGGLE_ISCHANGE_PROCESS_STR(false)
         // 提交运算过程至历史记录
         console.log('this is pstr in functionActuator before: ' + pstr)
         pstr += ev
@@ -270,7 +280,6 @@ export default {
         // 修正运算过程
         this.TOGGLE_PROCESS_STR(num)
         this.TOGGLE_RESULT_STR('')
-        // 不允许符号键触发 run()
       } else if (ev === 'CE') {
         // 清除当前行
         // this.TOGGLE_RESULT_VALUE('0')

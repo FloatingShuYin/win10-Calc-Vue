@@ -16,6 +16,8 @@ const state = {
   processStr: '',
   // 返回到显示器的值 （过程）
   resultStr: '',
+  // 用于标识区别 每一条 历史记录 方便虚拟dom渲染
+  resultHistoryId: 0,
   // 历史记录
   resultHistoryArr: [],
   // 运算符号
@@ -42,7 +44,7 @@ const getters = {
   [types.DONE_ISCHANGE_PROCESS_STR]: state => state.isChangePStr,
   [types.DONE_ISCANRUN]: state => state.isCanRun
 }
-
+// 这些方法名的前缀 不具备语义性 小demo 还是可以区分 就懒得改了 下次注意。。。
 const mutations = {
   [types.TOGGLE_MENT_TITLE]: (state, newMentTitle) => {
     state.menuTitle = newMentTitle
@@ -63,7 +65,16 @@ const mutations = {
     state.resultStr = newResultStr
   },
   [types.TOGGLE_RESULT_HISTORY_ARR]: (state, newResultHistoryArr) => {
-    state.resultHistoryArr.push(newResultHistoryArr)
+    // 添加 id 用于 v-bind:key
+    newResultHistoryArr.push(state.resultHistoryId)
+    // 自增 以区分 ！~！！需在历史记录数组置空时 同步置空
+    state.resultHistoryId++
+    // 再添加进历史记录数组 注意 这里是 unshift() 先入后出以符合需求
+    state.resultHistoryArr.unshift(newResultHistoryArr)
+  },
+  [types.CLEAN_RESULT_HISTORY_ARR]: state => {
+    state.resultHistoryId = 0
+    state.resultHistoryArr = []
   },
   [types.TOGGLE_TEMP_VALUE]: (state, newTempValue) => {
     state.tempValue = newTempValue

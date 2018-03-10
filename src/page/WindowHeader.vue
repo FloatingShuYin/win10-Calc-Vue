@@ -19,11 +19,11 @@ export default {
 /* 引入阿里巴巴图标库  win10Calc */
 @font-face {
   font-family: 'iconfont';  /* project id 579096 */
-  src: url('//at.alicdn.com/t/font_579096_lqa034e4zk027qfr.eot');
-  src: url('//at.alicdn.com/t/font_579096_lqa034e4zk027qfr.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_579096_lqa034e4zk027qfr.woff') format('woff'),
-  url('//at.alicdn.com/t/font_579096_lqa034e4zk027qfr.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_579096_lqa034e4zk027qfr.svg#iconfont') format('svg');
+  src: url('//at.alicdn.com/t/font_579096_zsjp9gk0asvsfw29.eot');
+  src: url('//at.alicdn.com/t/font_579096_zsjp9gk0asvsfw29.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_579096_zsjp9gk0asvsfw29.woff') format('woff'),
+  url('//at.alicdn.com/t/font_579096_zsjp9gk0asvsfw29.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_579096_zsjp9gk0asvsfw29.svg#iconfont') format('svg');
 }
 /* 初始化图标样式 */
 .iconfont {

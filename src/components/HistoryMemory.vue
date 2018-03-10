@@ -7,12 +7,20 @@
         <li class="move"> </li>
       </ul><!-- e:内存 历史记录 tabs -->
       <memory-record :is="currentTab" keep-alive></memory-record>
+      <div class="hdelbox">
+        <span class="hdelbox-del">
+          <a @click="CLEAN_RESULT_HISTORY_ARR">
+            <i class="iconfont">&#xe610;</i>
+          </a>
+        </span>
+      </div>
     </div>
 </template>
 
 <script>
 import memoryRecord from './MemoryRecord'
 import historyRecord from './HistoryRecord'
+import { mapMutations } from 'vuex'
 export default {
   name: 'HistoryMemory',
   components: {
@@ -25,6 +33,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['CLEAN_RESULT_HISTORY_ARR']),
     // 感觉可以整合到一个函数，但是如果考虑单一职责原则的话。。。
     // 切换标签页
     toggleTab (event, tab0, tab1) {
@@ -49,6 +58,19 @@ export default {
 </script>
 
 <style>
+/*清空历史记录 按钮*/
+.hdelbox {
+  height: 50px;
+  width: 244px;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+}
+.hdelbox-del {
+  position: absolute;
+  bottom: 8px;
+  right: 15px;
+}
 /*标签导航样式*/
 .hm-tabs li {
   font-size: 15px;
