@@ -6,7 +6,6 @@
         <i class="iconfont">&#xe62c;</i>
       </a>
       {{ DONE_MENT_TITLE }}
-      {{ DONE_RESULT_VALUE }}
     </span>
   </div>
   </div>

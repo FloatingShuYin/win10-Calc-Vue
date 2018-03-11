@@ -45,6 +45,17 @@ Vue.filter('wateriInjectionStr', (value, symbolArr) => {
   return resultArr.join('')
   // F(['1','2','+','3','2','*','2','2','='],['+','-','*','/'])
 })
+Vue.filter('scientificNotation', (v) => {
+  let resultStr = v
+  if (typeof v === 'number') {
+    resultStr = Number(v).toString()
+  }
+  console.log('this is fiflter value.length > 8: ' + resultStr.length > 8)
+  if (resultStr.length > 8) {
+    resultStr = parseFloat(resultStr).toExponential(5)
+  }
+  return resultStr
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

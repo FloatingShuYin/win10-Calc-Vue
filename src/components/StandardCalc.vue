@@ -7,7 +7,7 @@
       <div class="scb-resulted">
         <input type="text"
                name=""
-               :value="resultStr | wateriInjectionStr(['×', '÷', '+', '-'])"
+               :value="resultStr | wateriInjectionStr(['×', '÷', '+', '-']) | scientificNotation"
                readonly="readonly"
                disabled="disabled"
         />
@@ -15,7 +15,8 @@
       <div class="scb-resultVal">
         <input type="text"
                name=""
-               :value="resultVal"
+               min="0" maxlength="8"
+               :value="resultVal | scientificNotation"
                readonly="readonly"
                disabled="disabled"
         />
@@ -90,7 +91,7 @@ export default {
       resultStr: 'DONE_RESULT_STR',
       aSymbol: 'DONE_ARITHMETIC_SYMBOL',
       canChangeRVal: 'DONE_ISCHANGE_RESULT_VALUE',
-      canChangePStr: 'DONE_ISCHANGE_PROCESS_STR',
+      canChangepStr: 'DONE_ISCHANGE_PROCESS_STR',
       canRun: 'DONE_ISCANRUN'
     })
   },
@@ -131,33 +132,33 @@ export default {
       if (nv === '' || ov === '') {
         console.log('nv | ov 为空')
       }
-      let tem = 0
+      let tem = ''
       // 四则运算
       if (symbol === '+') {
         tem = parseFloat(ov) + parseFloat(nv)
-        this.TOGGLE_RESULT_VALUE(tem)
+        this.TOGGLE_RESULT_VALUE(Number(tem).toString())
         return tem
       } else if (symbol === '-') {
         tem = parseFloat(ov) - parseFloat(nv)
-        this.TOGGLE_RESULT_VALUE(tem)
+        this.TOGGLE_RESULT_VALUE(Number(tem).toString())
         return tem
       } else if (symbol === '×') {
         tem = parseFloat(ov) * parseFloat(nv)
-        this.TOGGLE_RESULT_VALUE(tem)
+        this.TOGGLE_RESULT_VALUE(Number(tem).toString())
         return tem
       } else if (symbol === '÷') {
         tem = parseFloat(ov) / parseFloat(nv)
-        this.TOGGLE_RESULT_VALUE(tem)
+        this.TOGGLE_RESULT_VALUE(Number(tem).toString())
         return tem
       }
     },
     // 执行器
     numActuator (ev) {
       let iscv = this.canChangeRVal
-      let iscp = this.canChangePStr
+      let iscp = this.canChangepStr
       let rv = this.resultVal
       let nv = this.newVal
-      let pstr = this.processStr
+      let pStr = this.processStr
       // 处理小数点的问题
       if (ev === '.') {
         if (nv[nv.length - 1] === '.' ||
@@ -186,50 +187,50 @@ export default {
       // 拼接还是替换 (过程)
       if (iscp) {
         // 拼接
-        pstr += ev
+        pStr += ev
       } else {
-        pstr = ev
+        pStr = ev
         // 允许拼接 (过程)
         this.TOGGLE_ISCHANGE_PROCESS_STR(true)
       }
       // 存入
-      this.TOGGLE_PROCESS_STR(pstr)
+      this.TOGGLE_PROCESS_STR(pStr)
     },
     symbolActuator (ev) {
-      let pstr = this.processStr
-      console.log('this is pstr in symbolActuator ' + pstr)
+      let pStr = this.processStr
+      console.log('this is pStr in symbolActuator ' + pStr)
       // getSymbolArr() => [+ - * /]
       let symbolArr = this.getSymbolArr()
       console.log('this is symbolArr in symbolActuator ' + symbolArr)
-      // pstr 中有多少个 + - * / 符号
-      let times = this.howManyTimesInArr(symbolArr, [...pstr])
+      // pStr 中有多少个 + - * / 符号
+      let times = this.howManyTimesInArr(symbolArr, [...pStr])
       // 处理用户不按数字就按操作符号的问题。。。
-      if (pstr.length === 0) {
+      if (pStr.length === 0) {
         return false
       }
       // 处理重复点击问题
-      if (ev === pstr[pstr.length - 1]) {
+      if (ev === pStr[pStr.length - 1]) {
         return false
       }
-      console.log(pstr[pstr.length - 1])
-      console.log('最后一个的字符是符号吗？: ' + symbolArr.some(item => item === pstr[pstr.length - 1]))
+      console.log(pStr[pStr.length - 1])
+      console.log('最后一个的字符是符号吗？: ' + symbolArr.some(item => item === pStr[pStr.length - 1]))
       // 处理用户 更正 符号的问题
-      if (symbolArr.some(item => item === pstr[pstr.length - 1])) {
+      if (symbolArr.some(item => item === pStr[pStr.length - 1])) {
         console.log('符号已经更正')
-        pstr = [...pstr]
-        pstr.pop()
-        pstr.push(ev)
-        pstr = pstr.join('')
-        this.TOGGLE_PROCESS_STR(pstr)
+        pStr = [...pStr]
+        pStr.pop()
+        pStr.push(ev)
+        pStr = pStr.join('')
+        this.TOGGLE_PROCESS_STR(pStr)
         this.TOGGLE_ARITHMETIC_SYMBOL(ev)
         // 更新显示器 （过程）
-        this.TOGGLE_RESULT_STR(pstr)
+        this.TOGGLE_RESULT_STR(pStr)
         return false
       }
       // 拼接 processStr
-      pstr += ev
+      pStr += ev
       // 存入
-      this.TOGGLE_PROCESS_STR(pstr)
+      this.TOGGLE_PROCESS_STR(pStr)
       // 是否触发 run()
       // 次数大于1 就触发
       if (times >= 1) {
@@ -249,17 +250,39 @@ export default {
       // 允许拼接 (过程)
       this.TOGGLE_ISCHANGE_PROCESS_STR(true)
       // 更新显示器 （过程）
-      this.TOGGLE_RESULT_STR(pstr)
+      this.TOGGLE_RESULT_STR(pStr)
     },
     functionActuator (ev) {
+      let pStr = this.processStr
+      // pStr 中有多少个 + - * / 符号
+      let symbolArr = this.getSymbolArr()
+      let times = this.howManyTimesInArr(symbolArr, [...pStr])
+      let rVal = this.resultVal
+      let nv = this.newVal
+      let ov = this.oldVal
       if (ev === '=') {
-        let pstr = this.processStr
-        // 如果最后一位是 + - * / 符号 则与他自己(oldValue)运算
-        if (this.getSymbolArr().some(item => item === pstr[pstr.length - 1])) {
-          this.TOGGLE_NEW_VALUE(this.resultVal)
-          this.TOGGLE_OLD_VALUE(this.resultVal)
-          pstr += this.resultVal
-          this.TOGGLE_PROCESS_STR(pstr)
+        // 如果不按 + - * / 直接按等号的话 让它等于自己
+        if (times === 0) {
+          this.TOGGLE_RESULT_HISTORY_ARR([this.resultVal += ev, this.resultVal])
+          // 并置空新值 以辅助符号处理程序处理
+          this.TOGGLE_NEW_VALUE('')
+          // 进入替换模式
+          this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+          this.TOGGLE_ISCHANGE_PROCESS_STR(false)
+          this.TOGGLE_RESULT_STR('')
+          return false
+        }
+        // 如果最后一位是 + - * / 符号
+        if (this.getSymbolArr().some(item => item === pStr[pStr.length - 1])) {
+          // 并且新值不为 0 则与他自己运算
+          if (this.newVal !== '0') {
+            this.TOGGLE_NEW_VALUE(this.resultVal)
+            this.TOGGLE_OLD_VALUE(this.resultVal)
+            pStr += this.resultVal
+            this.TOGGLE_PROCESS_STR(pStr)
+          } else {
+            pStr += this.newVal
+          }
         }
         // 调用运算器
         let num = this.run()
@@ -271,29 +294,91 @@ export default {
         this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
         this.TOGGLE_ISCHANGE_PROCESS_STR(false)
         // 提交运算过程至历史记录
-        console.log('this is pstr in functionActuator before: ' + pstr)
-        pstr += ev
-        console.log('this is pstr in functionActuator after: ' + pstr)
+        console.log('this is pStr in functionActuator before: ' + pStr)
+        pStr += ev
+        console.log('this is pStr in functionActuator after: ' + pStr)
         console.log('this is num in functionActuator: ' + num)
-        this.TOGGLE_RESULT_HISTORY_ARR([pstr, num])
+        this.TOGGLE_RESULT_HISTORY_ARR([pStr, num])
         console.log('this is RESULT_HISTORY_ARR in functionActuator:  ' + this.resultHistoryArr)
         // 修正运算过程
         this.TOGGLE_PROCESS_STR(num)
         this.TOGGLE_RESULT_STR('')
       } else if (ev === 'CE') {
         // 清除当前行
-        // this.TOGGLE_RESULT_VALUE('0')
+        // 如果processstr 为空 并且 resultVal 为 '0' 初始状态
+        if (pStr === '' && rVal === '0') {
+          return false
+        }
+        console.log('this is symbolArr in symbolActuator ' + symbolArr)
+        // 如果 + - * / 符号 个数不等于 0
+        if (times > 0) {
+          let [...ps] = pStr
+          ps.splice(pStr.indexOf(rVal), rVal.length)
+          this.TOGGLE_PROCESS_STR(ps.join(''))
+        } else {
+          this.TOGGLE_OLD_VALUE('0')
+          // 如果最后一位不是 + - * / 符号
+          if (!this.getSymbolArr().some(item => item === pStr[pStr.length - 1])) {
+            this.TOGGLE_PROCESS_STR('0')
+          }
+        }
+        // 新值置零 resultVal 置零 不允许拼接
+        this.TOGGLE_NEW_VALUE('0')
+        this.TOGGLE_RESULT_VALUE('0')
+        this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+        console.log('this is processStr in CE: ' + pStr)
       } else if (ev === 'B') {
         // 清除最后一个字符
-        // let resultValue = this.DONE_RESULT_VALUE
-        // if (resultValue !== '0') {
-        //   resultValue = [...resultValue]
-        //   resultValue.pop()
-        //   this.TOGGLE_RESULT_VALUE(resultValue.join(''))
+        let [...psa] = pStr
+        let [...rva] = rVal
+        let [...nva] = nv
+        let [...ova] = ov
+        // let ov = this.oldVal
+        // 最后一个字符是符号
+        if (symbolArr.some(item => item === pStr[pStr.length - 1])) {
+          return false
+        }
+        if (rVal !== '0') {
+          psa.pop()
+          rva.pop()
+          nva.pop()
+          ova.pop()
+          if (psa.length === 0) {
+            psa.push('0')
+          }
+          console.log('this is rva length : ' + rva.length + rva)
+          if (rva.length === 0) {
+            rva.push('0')
+          }
+          if (nva.length === 0) {
+            nva.push('0')
+          }
+          if (ova.length === 0) {
+            ova.push('0')
+          }
+          this.TOGGLE_PROCESS_STR(psa.join(''))
+          this.TOGGLE_RESULT_VALUE(rva.join(''))
+          this.TOGGLE_NEW_VALUE(nva.join(''))
+          this.TOGGLE_OLD_VALUE(ova.join(''))
+          this.TOGGLE_ISCHANGE_RESULT_VALUE(false)
+          this.TOGGLE_ISCHANGE_PROCESS_STR(false)
+        }
       } else if (ev === '%') {
 
       } else if (ev === '√') {
-
+        let num = Math.sqrt(rVal)
+        if (pStr === '') {
+          pStr = rVal
+        }
+        let [...ps] = pStr
+        ps.splice(0, 0, '√(')
+        ps.splice(ps.length, 0, ')')
+        console.log(ps)
+        this.TOGGLE_RESULT_VALUE(num)
+        this.TOGGLE_OLD_VALUE(num)
+        this.TOGGLE_NEW_VALUE(num)
+        this.TOGGLE_PROCESS_STR(ps.join(''))
+        this.TOGGLE_RESULT_STR(ps.join(''))
       } else if (ev === 'x²') {
 
       } else if (ev === '½') {

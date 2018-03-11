@@ -4,7 +4,7 @@
       <ul class="hrlist">
         <li v-for="resultHistory in resultHistoryArr" :key="resultHistory[2]" class="hrlist-item">
           <p class="hrlist-item-processStr"> {{ resultHistory[0] | wateriInjectionStr(['×', '÷', '+', '-']) }} </p>
-          <p class="hrlist-item-resultVal"> {{ resultHistory[1] }} </p>
+          <p class="hrlist-item-resultVal"> {{ resultHistory[1] | scientificNotation }} </p>
         </li>
         <!-- 我最不想用这种hack hack的出现是标准的缺失 ！！！-->
         <li v-show="resultHistoryArr.length < 6" class="temp">
@@ -58,6 +58,7 @@ export default {
 .hrlist {
 }
 .hrlist .hrlist-item {
+  margin: 15px 0;
 }
 .hrlist .hrlist-item:hover {
   background: rgba(99, 103, 110, .2);
@@ -67,14 +68,18 @@ export default {
   text-align: right;
   background: inherit;
   padding: 5px 10px;
+}
+.hrlist .hrlist-item .hrlist-item-processStr {
   letter-spacing: 5px;
+}
+.hrlist .hrlist-item .hrlist-item-resultVal {
+  letter-spacing: 0px;
+  font-size: 22px;
+  color: #000;
+  word-wrap:break-word
 }
 .hrlist .hrlist-item .hrlist-item-processStr:hover,
 .hrlist .hrlist-item .hrlist-item-resultVal:hover {
-}
-.hrlist .hrlist-item .hrlist-item-resultVal {
-  font-size: 30px;
-  color: #000;
 }
 /* .mrlist-item {
   list-style-type: none;
