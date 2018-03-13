@@ -7,7 +7,7 @@
         <li class="move"> </li>
       </ul><!-- e:内存 历史记录 tabs -->
       <memory-record :is="currentTab" keep-alive></memory-record>
-      <div class="hdelbox">
+      <div class="hdelbox" v-show="this.DONE_RESULT_HISTORY_ARR.length > 0">
         <span class="hdelbox-del">
           <a @click="CLEAN_RESULT_HISTORY_ARR">
             <i class="iconfont">&#xe610;</i>
@@ -20,12 +20,15 @@
 <script>
 import memoryRecord from './MemoryRecord'
 import historyRecord from './HistoryRecord'
-import { mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'HistoryMemory',
   components: {
     historyRecord,
     memoryRecord
+  },
+  computed: {
+    ...mapGetters(['DONE_RESULT_HISTORY_ARR'])
   },
   data () {
     return {

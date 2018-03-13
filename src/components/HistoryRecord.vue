@@ -70,13 +70,14 @@ export default {
   padding: 5px 10px;
 }
 .hrlist .hrlist-item .hrlist-item-processStr {
-  letter-spacing: 5px;
+  letter-spacing: 0px;
+  word-wrap: break-word;
 }
 .hrlist .hrlist-item .hrlist-item-resultVal {
   letter-spacing: 0px;
   font-size: 22px;
   color: #000;
-  word-wrap:break-word
+  word-wrap: break-word;
 }
 .hrlist .hrlist-item .hrlist-item-processStr:hover,
 .hrlist .hrlist-item .hrlist-item-resultVal:hover {

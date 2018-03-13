@@ -53,6 +53,15 @@ Vue.filter('scientificNotation', (v) => {
   console.log('this is fiflter value.length > 8: ' + resultStr.length > 8)
   if (resultStr.length > 8) {
     resultStr = parseFloat(resultStr).toExponential(5)
+  } else if (resultStr.length > 7) {
+    let [...temA] = resultStr
+    temA.splice(-7, 0, ',')
+    temA.splice(-3, 0, ',')
+    resultStr = temA.join('')
+  } else if (resultStr.length > 3) {
+    let [...temA] = resultStr
+    temA.splice(-3, 0, ',')
+    resultStr = temA.join('')
   }
   return resultStr
 })

@@ -7,7 +7,7 @@
       <div class="scb-resulted">
         <input type="text"
                name=""
-               :value="resultStr | wateriInjectionStr(['×', '÷', '+', '-']) | scientificNotation"
+               :value="resultStr | wateriInjectionStr(['×', '÷', '+', '-'])"
                readonly="readonly"
                disabled="disabled"
         />
@@ -261,6 +261,10 @@ export default {
       let nv = this.newVal
       let ov = this.oldVal
       if (ev === '=') {
+        if (pStr[pStr.length - 1] === ')') {
+          this.TOGGLE_RESULT_HISTORY_ARR([pStr + ev, rVal])
+          return false
+        }
         // 如果不按 + - * / 直接按等号的话 让它等于自己
         if (times === 0) {
           this.TOGGLE_RESULT_HISTORY_ARR([this.resultVal += ev, this.resultVal])
@@ -366,9 +370,16 @@ export default {
       } else if (ev === '%') {
 
       } else if (ev === '√') {
-        let num = Math.sqrt(rVal)
+        if (this.getSymbolArr().some(item => item === pStr[pStr.length - 1])) {
+          return false
+        }
+        let num = Math.sqrt(parseFloat(rVal))
+        console.log('this is pStr for ev === √ : ' + pStr)
         if (pStr === '') {
           pStr = rVal
+        }
+        if (typeof pStr === 'number') {
+          pStr = Number(pStr).toString()
         }
         let [...ps] = pStr
         ps.splice(0, 0, '√(')
@@ -380,11 +391,67 @@ export default {
         this.TOGGLE_PROCESS_STR(ps.join(''))
         this.TOGGLE_RESULT_STR(ps.join(''))
       } else if (ev === 'x²') {
-
+        if (this.getSymbolArr().some(item => item === pStr[pStr.length - 1])) {
+          return false
+        }
+        let num = parseFloat(rVal) * parseFloat(rVal)
+        if (pStr === '') {
+          pStr = rVal
+        }
+        if (typeof pStr === 'number') {
+          pStr = Number(pStr).toString()
+        }
+        let [...ps] = pStr
+        ps.splice(0, 0, 'sqr(')
+        ps.splice(ps.length, 0, ')')
+        console.log(ps)
+        this.TOGGLE_RESULT_VALUE(num)
+        this.TOGGLE_OLD_VALUE(num)
+        this.TOGGLE_NEW_VALUE(num)
+        this.TOGGLE_PROCESS_STR(ps.join(''))
+        this.TOGGLE_RESULT_STR(ps.join(''))
       } else if (ev === '½') {
-
+        if (this.getSymbolArr().some(item => item === pStr[pStr.length - 1])) {
+          return false
+        }
+        let num = parseFloat(rVal) / 2
+        if (pStr === '') {
+          pStr = rVal
+        }
+        if (typeof pStr === 'number') {
+          pStr = Number(pStr).toString()
+        }
+        let [...ps] = pStr
+        ps.splice(ps.length, 0, '/(2)')
+        console.log(ps)
+        this.TOGGLE_RESULT_VALUE(num)
+        this.TOGGLE_OLD_VALUE(num)
+        this.TOGGLE_NEW_VALUE(num)
+        this.TOGGLE_PROCESS_STR(ps.join(''))
+        this.TOGGLE_RESULT_STR(ps.join(''))
       } else if (ev === '±') {
-
+        if (this.getSymbolArr().some(item => item === pStr[pStr.length - 1])) {
+          return false
+        }
+        if (parseFloat(rVal) === 0) {
+          return false
+        }
+        let num = ~rVal + 1
+        if (pStr === '') {
+          pStr = rVal
+        }
+        if (typeof pStr === 'number') {
+          pStr = Number(pStr).toString()
+        }
+        let [...ps] = pStr
+        ps.splice(0, 0, 'negate(')
+        ps.splice(ps.length, 0, ')')
+        console.log(ps)
+        this.TOGGLE_RESULT_VALUE(num)
+        this.TOGGLE_OLD_VALUE(num)
+        this.TOGGLE_NEW_VALUE(num)
+        this.TOGGLE_PROCESS_STR(ps.join(''))
+        this.TOGGLE_RESULT_STR(ps.join(''))
       } else if (ev === 'C') {
         // 恢复初始状态
         this.TOGGLE_RESULT_VALUE('0')
